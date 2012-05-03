@@ -1,14 +1,12 @@
+{Adapters} = require "dock/adapters"
+
 class Dock
   constructor: ->
-    @data = []
+    @nodes = []
   
   # Adds a source file to be documented
   source: (filename, contents) ->
-    # Push a node into the data stack. Note: each node should be discovered
-    # by a source adapter after searching the file contents. That part's
-    # not implemented yet. The adapter should return an array of nodes,
-    # all of which will be added to @data.
-    @data.push file: filename, type: "Class", name: "Dock"
+    @nodes.push node for node in Adapters.process(filename, contents)
     
   # Generates the documentation and returns it as a JSON object
   #
@@ -22,9 +20,6 @@ class Dock
   generate: (files...) ->
     for entry in files
       @source entry...
-    @toJSON()
-    
-  # Returns the JSON object containing the documentation data
-  toJSON: -> @data
+    @nodes
 
-this.generate = (files) -> new Dock().generate(files)
+exports.generate = (files) -> new Dock().generate(files)

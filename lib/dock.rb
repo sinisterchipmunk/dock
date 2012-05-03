@@ -34,7 +34,14 @@ class Dock
   
   # Returns the Dock JavaScript source, as compiled by Sprockets.
   def source
-    source_compiler['dock.js']
+    source = source_compiler['jison.js'].to_s
+    source_compiler.each_logical_path do |logical_path|
+      next if logical_path == 'jison.js'
+      src = source_compiler[logical_path].to_s
+      logical_path.sub! /\.js$/, ''
+      source.concat "require.def('#{logical_path}',{factory:function(require,exports,module){#{src}}});"
+    end
+    source + "var Dock = require('dock');"
   end
   
   # Returns the ExecJS context, creating it if necessary.
@@ -44,7 +51,7 @@ class Dock
   
   # Builds the documentation for the project and returns it as an array of nodes
   def generate
-    context.call('generate', *discovered_files).collect do |node|
+    context.call('Dock.generate', *discovered_files).collect do |node|
       self.class.const_get(node['type']).new(node)
     end
   end
