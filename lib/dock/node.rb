@@ -11,6 +11,7 @@ class Dock::Node
     #   Dock::Node.new({})                    #=> Dock::Node
     #
     def new(hash)
+      raise ArgumentError, "Expected a hash, got #{hash.inspect}" unless hash.kind_of?(Hash)
       if hash['type']
         if Dock::Nodes.constants.include?(hash['type'].to_sym)
           Dock::Nodes.const_get(hash['type'])._new(hash)
@@ -79,10 +80,15 @@ class Dock::Node
     # FIXME more ugliness
     
     if value.kind_of?(Array)
-      value.collect! { |node| Dock::Node.new node }
+      value.collect! do |node|
+        if node.kind_of?(Hash)
+          Dock::Node.new node
+        else node
+        end
+      end
     elsif value.kind_of?(Hash)
       massaged_values = value.inject({}) do |hash, (next_key, next_value)|
-        if next_value.kind_of?(Hash)
+        if next_value.kind_of?(Hash) and next_value.key?('type')
           next_value = Dock::Node.new next_value
         else
           next_value = massage next_value

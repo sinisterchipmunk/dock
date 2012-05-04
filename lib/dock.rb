@@ -8,26 +8,41 @@ class Dock
   autoload :Node,    "dock/node"
   autoload :Nodes,   "dock/nodes"
   
-  attr_accessor :path, :pattern
+  attr_accessor :path, :pattern, :code, :language
 
   def initialize(options = {})
     reset_options!
+    
     options.each do |key, value|
       self.send(:"#{key}=", value)
+    end
+
+    if code && language && !options.key?(:path)
+      @scan_files = false
+    else
+      @scan_files = true
     end
   end
   
   def reset_options!
     @path = "."
-    @pattern = "**/*"
+    @pattern = "**/*.{coffee,js,rb}"
   end
   
   def classes
-    root_nodes.collect { |root_node| root_node.lines.select { |line| line.type == 'Class' } }.flatten
+    root_nodes.collect do |root_node|
+      raising_with_file root_node.file do
+        root_node.lines.select { |line| line.type == 'Class' }
+      end
+    end.flatten
   end
   
   def root_nodes
-    generate.collect { |node| Dock::Node.new node }
+    generate.collect do |root_node|
+      raising_with_file root_node['file'] do
+        Dock::Node.new root_node
+      end
+    end
   end
   
   # The Sprockets environment which is responsible for building the Dock JavaScript sources.
@@ -56,14 +71,35 @@ class Dock
   
   # Builds the documentation for the project and returns it as an array of nodes
   def generate
-    context.call('Dock.generate', *discovered_files)
+    @generated ||= discovered_files.collect do |file|
+      raising_with_file file[0] do
+        context.call 'Dock.generate', language, *file
+      end
+    end
+  end
+  
+  def raising_with_file(filename)
+    yield
+  rescue
+    $!.message.concat " (while processing file #{filename})"
+    raise $!
   end
   
   def discovered_files
-    Dir[File.expand_path(File.join(path, pattern))].select { |f| File.file?(f) }.collect do |absolute_path|
-      relative_path = absolute_path.sub(/^#{Regexp::escape path}\/?/, '')
-      contents = File.read absolute_path
-      [relative_path, contents]
+    files = []
+    if code and language
+      files << [nil, code]
     end
+    
+    if @scan_files
+      scan_path = File.expand_path(File.join(path, pattern))
+      files += Dir[scan_path].select { |f| File.file?(f) }.collect do |absolute_path|
+        relative_path = absolute_path.sub(/^#{Regexp::escape path}\/?/, '')
+        contents = File.read absolute_path
+        [relative_path, contents]
+      end
+    end
+    
+    files
   end
 end

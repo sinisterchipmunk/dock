@@ -1,3 +1,6 @@
+{extend} = require 'dock/adapters/coffee/helpers'
+exports.extend = extend  # for parser
+
 class Node
   constructor: (@nodes...) ->
     @type = @__proto__.constructor.name
@@ -6,7 +9,10 @@ class exports.Literal extends Node
   constructor: (@value) -> super()
     
 class exports.Value extends Node
-  constructor: (@base, @props, @tag) -> super()
+  constructor: (@base, @properties = [], @tag) -> super()
+  add: (props) ->
+    @properties = @properties.concat props
+    this
 
 class exports.Class extends Node
   constructor: (@name, @extends, @block) -> super()
@@ -24,7 +30,7 @@ class exports.Call extends Node
   constructor: (@variable, @args = [], @soak) -> super()
 
 class exports.Block extends Node
-  constructor: (@lines) -> super()
+  constructor: (@lines = []) -> super()
   push: (node) ->
     @lines.push node
     this
@@ -71,6 +77,7 @@ class exports.Parens extends Node
 
 class exports.While extends Node
   constructor: (@condition, @options) -> super()
+  addBody: (@body) -> @
 
 class exports.For extends Node
   constructor: (@body, @source) -> super()
@@ -80,9 +87,15 @@ class exports.Switch extends Node
 
 class exports.If extends Node
   constructor: (@condition, @body, @options = {}) -> super()
+  addElse: (@else) -> @
 
 class exports.Op extends Node
-  constructor: (@op, @first, @second, @flip ) -> super()
+  constructor: (@op, @first, @second, @flip) ->
+    super()
+    @inverted = false
+  invert: ->
+    @inverted = true
+    this
 
 class exports.Extends extends Node
   constructor: (@child, @parent) -> super()
