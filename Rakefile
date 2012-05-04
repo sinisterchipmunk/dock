@@ -5,7 +5,7 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
 COFFEE_PARSER = File.expand_path("lib/js/dock/adapters/coffee/parser.js", File.dirname(__FILE__))
-COFFEE_GRAMMAR= File.expand_path("lib/js/dock/adapters/coffee/grammar.js.coffee", File.dirname(__FILE__))
+COFFEE_GRAMMAR= File.expand_path("lib/js/dock/adapters/coffee/grammar.coffee", File.dirname(__FILE__))
 
 namespace :coffee do
   desc "Rebuild the coffeescript parser"

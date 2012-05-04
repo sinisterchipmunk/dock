@@ -5,7 +5,7 @@ require 'sprockets'
 class Dock
   autoload :Version, "dock/version"
   autoload :VERSION, "dock/version"
-  require 'dock/class'
+  autoload :Node,    "dock/node"
   
   attr_accessor :path, :pattern
 
@@ -22,7 +22,11 @@ class Dock
   end
   
   def classes
-    generate.select { |node| node.kind_of?(Dock::Class) }
+    root_nodes.collect { |root_node| root_node.classes }.flatten
+  end
+  
+  def root_nodes
+    generate.collect { |node| Dock::Node.wrap node }
   end
   
   # The Sprockets environment which is responsible for building the Dock JavaScript sources.
@@ -51,9 +55,7 @@ class Dock
   
   # Builds the documentation for the project and returns it as an array of nodes
   def generate
-    context.call('Dock.generate', *discovered_files).collect do |node|
-      self.class.const_get(node['type']).new(node)
-    end
+    context.call('Dock.generate', *discovered_files)
   end
   
   def discovered_files

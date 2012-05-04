@@ -6,10 +6,7 @@ class module.exports
     @parse_tree()
   
   parse_tree: ->
-    @nodes = (parser.parse lexer.tokenize @contents).compile options
-  
-  getNodes: ->
-    @nodes
+    parser.parse lexer.tokenize @contents
   
 # Instantiate a Lexer for our use here.
 lexer = new Lexer

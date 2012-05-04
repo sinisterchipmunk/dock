@@ -6,6 +6,6 @@ exports.Adapters = class Adapters
     ext = filename.substring filename.lastIndexOf('.') + 1, filename.length
     
     if klass = this[ext]
-      return new klass(filename, contents).getNodes()
+      return new klass(filename, contents).parse_tree()
     else throw new Error "No adapter for file extension #{ext}"
     
