@@ -23,7 +23,7 @@ class Dock
   end
   
   def classes
-    root_nodes.collect { |root_node| root_node.classes }.flatten
+    root_nodes.collect { |root_node| root_node.lines.select { |line| line.type == 'Class' } }.flatten
   end
   
   def root_nodes

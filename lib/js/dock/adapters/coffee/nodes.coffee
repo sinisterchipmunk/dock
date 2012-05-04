@@ -1,78 +1,91 @@
-node_types = 
-  Block: "blocks"
-  Literal: "literals"
-  Class: "classes"
-  Assign: "assigns"
-  Value: "values"
-  Return: "returns"
-  Comment: "comments"
-  Code: "codes"
-  Param: "params"
-  Splat: "splats"
-  Access: "accesses"
-  Index: "indexes"
-  Slice: "slices"
-  Obj: "objects"
-  Call: "calls"
-  Arr: "arrays"
-  Range: "ranges"
-  Try: "tries"
-  Throw: "throws"
-  Parens: "parens"
-  While: "whiles"
-  For: "fors"
-  Switch: "switches"
-  If: "ifs"
-  Op: "operations"
-  Extends: "extends"
-
 class Node
-  constructor: (nodes...) ->
-    for type, accessor of node_types
-      @[accessor] = []
-    @push node for node in nodes
+  constructor: (@nodes...) ->
+    @type = @__proto__.constructor.name
   
-  @wrap = (ary) ->
-    klass = exports[@type]
-    throw new Error "No class found for type #{@type} in node #{@name}" unless klass
-    new klass ary...
-  
-  meta: (type, accessor) ->
-    @type = type
-    Object.defineProperty @, "accessor",
-      get: -> accessor
-      enumerable: false
-  
-  push: (node) ->
-    unless this[node.accessor]
-      name = @__proto__.constructor.name
-      type = @type || @__proto__.constructor.type
-      throw new Error("No accessor found named #{node.accessor} in node #{type} (#{name})")
-    this[node.accessor] or= []
-    this[node.accessor].push node
-    this
-
 class exports.Literal extends Node
-  constructor: (value) ->
-    super()
-    @value = value
-    @meta "Literal", "literals"
+  constructor: (@value) -> super()
     
+class exports.Value extends Node
+  constructor: (@base, @props, @tag) -> super()
+
 class exports.Class extends Node
-  constructor: (@name, @extends, block) ->
-    super()
-    @meta "Class", "classes"
-    @push block if block
+  constructor: (@name, @extends, @block) -> super()
+    
+class exports.Code extends Node
+  constructor: (@params, @body, @tag) -> super()
+    
+class exports.Assign extends Node
+  constructor: (@variable, @value, @context, @options) -> super()
+  
+class exports.Obj extends Node
+  constructor: (@props, @generated = false) -> super()
+  
+class exports.Call extends Node
+  constructor: (@variable, @args = [], @soak) -> super()
 
+class exports.Block extends Node
+  constructor: (@lines) -> super()
+  push: (node) ->
+    @lines.push node
+    this
+    
+  @wrap = (ary) ->
+    klass = exports.Block
+    new klass ary
 
+class exports.Return extends Node
+  constructor: (@expr) -> super()
 
-for type, accessor of node_types
-  continue if exports[type]
-  exports[type] = class extends Node
-    [_type, _accessor] = [type, accessor]
+class exports.Comment extends Node
+  constructor: (@comment) -> super()
 
-    constructor: (args...) ->
-      super args...
-      @meta _type, _accessor
-      
-    @type: _type
+class exports.Param extends Node
+  constructor: (@name, @value, @splat) -> super()
+        
+class exports.Splat extends Node
+  constructor: (@name) -> super()
+
+class exports.Access extends Node
+  constructor: (@name, @tag) -> super()
+
+class exports.Index extends Node
+  constructor: (@index) -> super()
+
+class exports.Slice extends Node
+  constructor: (@range) -> super()
+  
+class exports.Arr extends Node
+  constructor: (@objs) -> super()
+
+class exports.Range extends Node
+  constructor: (@from, @to, @tag) -> super()
+
+class exports.Try extends Node
+  constructor: (@attempt, @error, @recovery, @ensure) -> super()
+
+class exports.Throw extends Node
+  constructor: (@expression) -> super()
+  
+class exports.Parens extends Node
+  constructor: (@body) -> super()
+
+class exports.While extends Node
+  constructor: (@condition, @options) -> super()
+
+class exports.For extends Node
+  constructor: (@body, @source) -> super()
+
+class exports.Switch extends Node
+  constructor: (@subject, @cases, @otherwise) -> super()
+
+class exports.If extends Node
+  constructor: (@condition, @body, @options = {}) -> super()
+
+class exports.Op extends Node
+  constructor: (@op, @first, @second, @flip ) -> super()
+
+class exports.Extends extends Node
+  constructor: (@child, @parent) -> super()
+
+class exports.Existence extends Node
+  constructor: (@expression) -> super()

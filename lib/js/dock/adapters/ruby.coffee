@@ -4,4 +4,4 @@ class module.exports
   parse_tree: ->
     file: @filename
     type: "Block"
-    classes: [ type: "Class", file: @filename, name: "Dock" ]
+    lines: [ type: "Class", file: @filename, name: "Dock" ]

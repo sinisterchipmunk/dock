@@ -55,13 +55,14 @@ class Dock::Node
           when Hash
             value = prc.call value
             new_hash[key] = value unless value.empty?
+          when NilClass
           else new_hash[key] = value
         end
         new_hash
       end
     end
   
-    "(#{self.class.name}#{prc.call(@node).inspect})"
+    prc.call(@node).inspect
   end
   
   protected
