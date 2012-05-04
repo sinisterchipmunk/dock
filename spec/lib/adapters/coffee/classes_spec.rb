@@ -5,7 +5,7 @@ describe "Coffee adapter" do
   subject { Dock.new(:path => path) }
   
   it "should discover all classes" do
-    subject.classes.collect { |c| c.name }.should == %w(
+    subject.classes.collect { |c| c.name.to_str }.should == %w(
       Brilliant
     )
   end

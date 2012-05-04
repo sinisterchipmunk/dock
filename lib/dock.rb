@@ -6,6 +6,7 @@ class Dock
   autoload :Version, "dock/version"
   autoload :VERSION, "dock/version"
   autoload :Node,    "dock/node"
+  autoload :Nodes,   "dock/nodes"
   
   attr_accessor :path, :pattern
 
@@ -26,7 +27,7 @@ class Dock
   end
   
   def root_nodes
-    generate.collect { |node| Dock::Node.wrap node }
+    generate.collect { |node| Dock::Node.new node }
   end
   
   # The Sprockets environment which is responsible for building the Dock JavaScript sources.

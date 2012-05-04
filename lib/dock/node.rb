@@ -1,15 +1,25 @@
 class Dock::Node
   class << self
-    # Wraps the node hash in an instance of Dock::Node
-    def wrap(hash)
+    alias_method :_new, :new #:nodoc:
+    
+    # Overridden to instantiate a subclass of Dock::Node if the
+    # 'type' key of the given hash matches the demodulized name
+    # of the subclass; returns a generic Dock::Node otherwise.
+    #
+    # Examples:
+    #   Dock::Node.new({'type' => 'Literal'}) #=> Dock::Node::Literal
+    #   Dock::Node.new({})                    #=> Dock::Node
+    #
+    def new(hash)
       if hash['type']
-        klass = Dock.const_get hash['type']
-        klass ? klass.new(hash) : Dock::Node.new(hash)
+        if Dock::Nodes.constants.include?(hash['type'].to_sym)
+          Dock::Nodes.const_get(hash['type'])._new(hash)
+        else
+          _new(hash)
+        end
       else
         raise "No node type for node #{hash.inspect}"
       end
-    rescue NameError, TypeError
-      Dock::Node.new hash
     end
   end
   
@@ -51,7 +61,7 @@ class Dock::Node
       end
     end
   
-    prc.call(@node).inspect
+    "(#{self.class.name}#{prc.call(@node).inspect})"
   end
   
   protected
@@ -68,11 +78,16 @@ class Dock::Node
     # FIXME more ugliness
     
     if value.kind_of?(Array)
-      value.collect! { |node| Dock::Node.wrap node }
+      value.collect! { |node| Dock::Node.new node }
     elsif value.kind_of?(Hash)
       massaged_values = value.inject({}) do |hash, (next_key, next_value)|
-        next_value = massage next_value
-        hash[next_key] = next_value unless next_value.empty?
+        if next_value.kind_of?(Hash)
+          next_value = Dock::Node.new next_value
+        else
+          next_value = massage next_value
+        end
+        
+        hash[next_key] = next_value unless next_value.kind_of?(Hash) and next_value.empty?
         hash
       end
       value.clear
