@@ -12,14 +12,20 @@
   <%= node.documentation %>
 </div>
 
-<%# node.public_instance_methods.each do |method| %>
+<% node.methods.each do |method| %>
   <div class="public instance method">
-    <p class="name">
-      <%#= method %>
-    </p>
+    <h3 class="name">
+      <%= method.name %>
+    </h3>
+    
+    <div class="documentation">
+      <%= method.documentation %>
+    </div>
     
     <ul class="arguments">
-      <li></li>
-    </div>
+      <%# method.params.each do |param| %>
+        <li><%#= param.name %></li>
+      <%# end %>
+    </ul>
   </div>
-<%# end %>
+<% end %>

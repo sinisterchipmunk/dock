@@ -18,11 +18,33 @@ class exports.Value extends Node
   add: (props) ->
     @properties = @properties.concat props
     this
+  isObject: -> @base instanceof exports.Obj
   toString: -> @base.toString()
 
 class exports.Class extends Node
   constructor: (@name, @extends, @block) -> super()
   children: -> ['name', 'extends', 'block']
+  build: ->
+    super()
+    @properties = []
+    for node in @block.lines
+      if node instanceof exports.Value and node.isObject()
+        @properties.push node.base
+    # separate methods from variables in @properties
+    @methods = []
+    for obj in @properties
+      desc = ""
+      for prop in obj.props
+        switch prop.type
+          when 'Comment' then desc += prop.comment
+          when 'Assign'
+            name = prop.variable.toString()
+            if prop.value instanceof exports.Code
+              @methods.push name: name, documentation: desc, params: prop.value.params
+            else
+              # variable, not implemented yet
+            desc = ""
+
     
 class exports.Code extends Node
   constructor: (@params, @body, @tag) -> super()
@@ -47,6 +69,7 @@ class exports.Block extends Node
     @lines.push node
     this
   build: ->
+    node.build() for node in @lines
     doc = ""
     for line in @lines
       if line instanceof exports.Comment
@@ -54,7 +77,6 @@ class exports.Block extends Node
       else
         line.documentation = doc
         doc = ""
-    super()
     
   @wrap = (ary) ->
     klass = exports.Block

@@ -1,6 +1,7 @@
 require 'execjs'
 require 'json'
 require 'sprockets'
+require 'github/markup'
 
 class Dock
   autoload :Version, "dock/version"
@@ -10,7 +11,24 @@ class Dock
   autoload :Template,"dock/template"
   
   attr_accessor :project_path, :pattern, :code, :language, :template_path, :title
-
+  
+  class << self
+    attr_writer :markup
+  
+    # Returns the selected markup. If none has been explicitly set, the markup will
+    # be auto-detected based on what markup gems have been included. If no markup is
+    # found, an error will be raised.
+    def markup
+      @markup ||= begin
+        markups = %w(markdown textile rdoc org creole mediawiki rst asciidoc pod)
+        markups.select! do |markup|
+          markup =~ GitHub::Markup.class_variable_get("@@markups").keys[0]
+        end
+        markups.first or raise "No markups found! Please install a markup gem like 'redcarpet'."
+      end
+    end
+  end
+  
   def initialize(options = {})
     reset_options!
     
@@ -69,7 +87,7 @@ class Dock
       logical_path.sub! /\.js$/, ''
       source.concat "require.def('#{logical_path}',{factory:function(require,exports,module){#{src}}});"
     end
-    source + "var Dock = require('dock');"
+    source + "var Dock = require('dock').Dock;"
   end
   
   # Returns the ExecJS context, creating it if necessary.

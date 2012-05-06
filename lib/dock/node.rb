@@ -1,14 +1,17 @@
 class Dock::Node
+  SAFE_METHODS = ['documentation'] # :nodoc:
+  
   class << self
-    alias_method :_new, :new #:nodoc:
+    alias_method :_new, :new # :nodoc:
     
     # Overridden to instantiate a subclass of Dock::Node if the
     # 'type' key of the given hash matches the demodulized name
     # of the subclass; returns a generic Dock::Node otherwise.
     #
     # Examples:
-    #   Dock::Node.new({'type' => 'Literal'}) #=> Dock::Node::Literal
-    #   Dock::Node.new({})                    #=> Dock::Node
+    #
+    #     Dock::Node.new({'type' => 'Literal'}) #=> Dock::Node::Literal
+    #     Dock::Node.new({})                    #=> Dock::Node
     #
     def new(hash)
       raise ArgumentError, "Expected a hash, got #{hash.inspect}" unless hash.kind_of?(Hash)
@@ -27,7 +30,21 @@ class Dock::Node
   def initialize(node)
     @node = node
     massage node
-    node.each { |key, value| define_attribute key, value }
+    node.each { |key, value| define_attribute key, value unless SAFE_METHODS.include?(key) }
+  end
+  
+  def documentation                                                      
+    @documentation ||= begin
+      doc = @node['documentation']
+      # doc may contain indentations left over from coffeescript parsing, so remove them
+      white = nil
+      doc.gsub(/\n[\s\t]+/) do |match|
+        w = match.gsub(/\t/, '    ').length - 1
+        white = w if white.nil? or w < white
+      end
+      doc.gsub!(/\n\s{#{white}}/, "\n")                 
+      GitHub::Markup.render("file.#{Dock.markup}", doc).html_safe
+    end
   end
   
   def to_str

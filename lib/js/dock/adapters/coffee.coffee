@@ -9,9 +9,17 @@ class module.exports extends Adapter
     for line in block.lines
       switch line.type
         when 'Class'
-          node.classes.push @process_tree line.block, @class line.name.toString(),
+          [instance_methods, class_methods] = [[], []]
+          for method in line.methods
+            instance_methods.push @method method.name,
+              documentation: method.documentation
+              # params: method_params
+
+          node.classes.push klass = @process_tree line.block, @class line.name.toString(),
             file: @filename
             documentation: line.documentation
+            instance_methods: instance_methods
+            class_methods: class_methods
     node
   
   generate: ->

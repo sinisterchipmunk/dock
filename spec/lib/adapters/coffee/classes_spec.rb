@@ -11,4 +11,12 @@ describe "Coffee adapter" do
   it "should attach only the relative filename" do
     subject.classes[0].file.should == "example.coffee"
   end
+  
+  it "should discover instance methods" do
+    subject.classes[0].instance_methods.should_not be_empty
+  end
+  
+  it "should discover class methods" do
+    subject.classes[0].class_methods.should_not be_empty
+  end
 end
