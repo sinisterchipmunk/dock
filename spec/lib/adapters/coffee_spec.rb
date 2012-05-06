@@ -20,4 +20,13 @@ describe "Coffee adapter" do
   it "should not croak in a file with only comments" do
     proc { Dock.new(:code => "# comment", :language => 'coffee').classes }.should_not raise_error
   end
+  
+  it "should discover exported classes" do
+    d = Dock.new :code => "exports.Code = class Code\n  constructor: ->", :language => 'coffee'
+    d.classes.first.name.should == 'Code'
+  end
+  
+  it "should not croak on assigns to non-classes" do
+    proc { Dock.new :code => "exports.Code = 1", :language => 'coffee' }.should_not raise_error
+  end
 end

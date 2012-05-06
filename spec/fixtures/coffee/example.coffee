@@ -3,10 +3,11 @@ A Person is a human and is usually given a name at birth.
 ###
 class Person
   constructor: (name) ->
-    @species = "human"
     @name = name
     
   sayHello: -> alert("Hello, my name is #{@name}")
+  
+  @getSpecies: -> "human"
 
 ### 
 A Girl is the female version of a Person.

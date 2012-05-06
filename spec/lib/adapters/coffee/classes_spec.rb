@@ -12,11 +12,15 @@ describe "Coffee adapter" do
     subject.classes[0].file.should == "example.coffee"
   end
   
-  it "should discover instance methods" do
-    subject.classes[0].instance_methods.should_not be_empty
+  it "should discover the correct instance methods" do
+    subject.classes[0].instance_methods[1].name.should == "sayHello"
   end
   
-  it "should discover class methods" do
-    subject.classes[0].class_methods.should_not be_empty
+  it "should discover the correct class methods" do
+    subject.classes[0].class_methods[0].name.should == "getSpecies"
+  end
+  
+  it "should create params arrays for class methods" do
+    subject.classes[0].class_methods[0].params.should be_kind_of(Array)
   end
 end

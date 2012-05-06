@@ -4,8 +4,9 @@ exports.extend = extend  # for parser
 class Node
   constructor: (@nodes...) ->
     @type = @__proto__.constructor.name
-  build: ->
-    for child in @children
+  children: -> []
+  build: ->               
+    for child in @children()
       if @[child] and @[child].build then @[child].build()
   
 class exports.Literal extends Node
@@ -19,7 +20,11 @@ class exports.Value extends Node
     @properties = @properties.concat props
     this
   isObject: -> @base instanceof exports.Obj
-  toString: -> @base.toString()
+  toString: ->
+    name = @base.toString()
+    for prop in @properties
+      name += prop.toString()
+    name
 
 class exports.Class extends Node
   constructor: (@name, @extends, @block) -> super()
@@ -37,7 +42,8 @@ class exports.Class extends Node
       for prop in obj.props
         switch prop.type
           when 'Comment' then desc += prop.comment
-          when 'Assign'
+          when 'Assign'                    
+            console.log require('util').inspect(prop, false, null) if prop.variable.toString() == 'this'
             name = prop.variable.toString()
             if prop.value instanceof exports.Code
               @methods.push name: name, documentation: desc, params: prop.value.params
@@ -101,6 +107,7 @@ class exports.Splat extends Node
 class exports.Access extends Node
   constructor: (@name, @tag) -> super()
   children: -> ['name', 'tag']
+  toString: -> "." + @name.toString()
 
 class exports.Index extends Node
   constructor: (@index) -> super()

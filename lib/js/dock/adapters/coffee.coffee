@@ -8,19 +8,33 @@ class module.exports extends Adapter
     block.build()
     for line in block.lines
       switch line.type
+        when 'Assign'
+          if line.value.type == 'Class'
+            # TODO process the left side of assign, since that's effectively
+            # the class name now
+            klass_node = @process_class_tree block, node, line.value
         when 'Class'
-          [instance_methods, class_methods] = [[], []]
-          for method in line.methods
-            instance_methods.push @method method.name,
-              documentation: method.documentation
-              # params: method_params
-
-          node.classes.push klass = @process_tree line.block, @class line.name.toString(),
-            file: @filename
-            documentation: line.documentation
-            instance_methods: instance_methods
-            class_methods: class_methods
+          @process_class_tree block, node, line
     node
+    
+  process_class_tree: (block, node, klass) ->
+    [instance_methods, class_methods] = [[], []]
+    for method in klass.methods
+      if method.name.indexOf("this.") == 0
+        class_methods.push @method method.name.substring(5, method.name.length),
+          documentation: method.documentation
+          params: []
+      else
+        instance_methods.push @method method.name,
+          documentation: method.documentation
+          params: [] #method_params
+
+    node.classes.push klass_node = @process_tree klass.block, @class klass.name.toString(),
+      file: @filename
+      documentation: klass.documentation
+      instance_methods: instance_methods
+      class_methods: class_methods
+    klass_node
   
   generate: ->
     @process_tree parser.parse(lexer.tokenize @contents), @root

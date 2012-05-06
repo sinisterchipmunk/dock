@@ -11,21 +11,45 @@
 <div class="documentation">
   <%= node.documentation %>
 </div>
-
-<% node.methods.each do |method| %>
-  <div class="public instance method">
-    <h3 class="name">
-      <%= method.name %>
-    </h3>
+                     
+<div id="class_methods">
+  <h2>Class Methods</h2>
+  <% node.class_methods.each do |method| %>
+    <div class="class-method">
+      <h3 class="name">
+        <%= method.name %>
+      </h3>
     
-    <div class="documentation">
-      <%= method.documentation %>
+      <div class="documentation">
+        <%= method.documentation %>
+      </div>
+    
+      <ul class="arguments">
+        <% method.params.each do |param| %>
+          <li><%= param.name %></li>
+        <% end %>
+      </ul>
     </div>
+  <% end %>
+</div>
+          
+<div class="instance_methods">
+  <h2>Instance Methods</h2>
+  <% node.instance_methods.each do |method| %>
+    <div class="instance-method">
+      <h3 class="name">
+        <%= method.name %>
+      </h3>
     
-    <ul class="arguments">
-      <%# method.params.each do |param| %>
-        <li><%#= param.name %></li>
-      <%# end %>
-    </ul>
-  </div>
-<% end %>
+      <div class="documentation">
+        <%= method.documentation %>
+      </div>
+    
+      <ul class="arguments">
+        <% method.params.each do |param| %>
+          <li><%= param.name %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

@@ -20,7 +20,7 @@ exports.Node = class Node
     @name = name
     for k, v of options
       @[k] = v
-    @description or= ""
+    @documentation or= ""
 
   module: (name, options = {}) ->
     @modules.push module = new Module name, options
