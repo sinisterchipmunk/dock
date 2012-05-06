@@ -1,7 +1,5 @@
-class module.exports
-  constructor: (@filename, @contents) ->
-    
-  parse_tree: ->
-    file: @filename
-    type: "Block"
-    lines: [ type: "Class", file: @filename, name: "Dock" ]
+Adapter = require('dock/adapters/base').Base
+
+class module.exports extends Adapter
+  generate: ->
+    [ @class "Dock", file: @filename ]

@@ -1,12 +1,18 @@
 {Lexer,RESERVED} = require 'dock/adapters/coffee/lexer'
 {parser}         = require 'dock/adapters/coffee/parser'
+Adapter = require('dock/adapters/base').Base
 
-class module.exports
-  constructor: (@filename, @contents) ->
-    @parse_tree()
+class module.exports extends Adapter
+  process_tree: (nodes, block) ->
+    for line in block.lines
+      switch line.type
+        when 'Class'
+          nodes.push @class line.name.toString(),
+            file: @filename
+    nodes
   
-  parse_tree: ->
-    parser.parse lexer.tokenize @contents
+  generate: ->
+    @process_tree [], parser.parse lexer.tokenize @contents
   
 # Instantiate a Lexer for our use here.
 lexer = new Lexer

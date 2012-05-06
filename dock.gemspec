@@ -19,9 +19,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "rspec"
+  s.add_development_dependency "rake"
   s.add_development_dependency "therubyracer" # because execjs needs *something*
   
   s.add_runtime_dependency "execjs"
   s.add_runtime_dependency "sprockets"
   s.add_runtime_dependency 'coffee-script'
+  s.add_runtime_dependency 'actionpack', '~> 3.2.3'
 end

@@ -7,12 +7,14 @@ class Node
   
 class exports.Literal extends Node
   constructor: (@value) -> super()
+  toString: -> @value.toString()
     
 class exports.Value extends Node
   constructor: (@base, @properties = [], @tag) -> super()
   add: (props) ->
     @properties = @properties.concat props
     this
+  toString: -> @base.toString()
 
 class exports.Class extends Node
   constructor: (@name, @extends, @block) -> super()

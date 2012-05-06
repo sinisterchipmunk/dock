@@ -1,4 +1,5 @@
 require "bundler/gem_tasks"
+require "bundler/setup"
 require 'dock'
 require 'rspec/core/rake_task'
 
@@ -6,6 +7,14 @@ RSpec::Core::RakeTask.new
 
 COFFEE_PARSER = File.expand_path("lib/js/dock/adapters/coffee/parser.js", File.dirname(__FILE__))
 COFFEE_GRAMMAR= File.expand_path("lib/js/dock/adapters/coffee/grammar.coffee", File.dirname(__FILE__))
+
+desc "build documentation by running Dock against itself"
+task :doc do
+  dock = Dock.new :project_path => File.expand_path('.', File.dirname(__FILE__)),
+                  :pattern => 'lib/js/*.{coffee}',
+                  :title => "Dock"
+  dock.build_to './doc'
+end
 
 namespace :coffee do
   desc "Rebuild the coffeescript parser"

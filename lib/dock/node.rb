@@ -34,6 +34,10 @@ class Dock::Node
     inspect
   end
   
+  def to_s
+    to_str
+  end
+  
   def inspect
     # Inspect the node hash, recursively removing empty arrays for legibility
     # FIXME why so ugly?

@@ -7,8 +7,9 @@ class Dock
   autoload :VERSION, "dock/version"
   autoload :Node,    "dock/node"
   autoload :Nodes,   "dock/nodes"
+  autoload :Template,"dock/template"
   
-  attr_accessor :path, :pattern, :code, :language
+  attr_accessor :project_path, :pattern, :code, :language, :template_path, :title
 
   def initialize(options = {})
     reset_options!
@@ -17,7 +18,7 @@ class Dock
       self.send(:"#{key}=", value)
     end
 
-    if code && language && !options.key?(:path)
+    if code && language && !options.key?(:project_path) && !options.key?(:pattern)
       @scan_files = false
     else
       @scan_files = true
@@ -25,30 +26,42 @@ class Dock
   end
   
   def reset_options!
-    @path = "."
-    @pattern = "**/*.{coffee,js,rb}"
+    @title = "Documentation"
+    @project_path = "./lib"
+    @pattern = "/**/*.{coffee,js,rb}"
+    @template_path = File.expand_path("../templates", File.dirname(__FILE__))
+  end
+  
+  def build_to(path)
+    template = Dock::Template.new :title => title
+    template.view_paths << template_path
+    
+    FileUtils.mkdir_p path
+    classes.each do |node|
+      template.node = node
+      result = template.render :template => node.type.underscore, :layout => 'layout'
+      File.open(File.join(path, "#{node.name.to_s.underscore}.html"), "w") do |f|
+        f.puts result
+      end
+    end
   end
   
   def classes
-    root_nodes.collect do |root_node|
-      raising_with_file root_node.file do
-        root_node.lines.select { |line| line.type == 'Class' }
-      end
-    end.flatten
+    root_nodes.select do |node|
+      node.type == 'Class'
+    end
   end
   
   def root_nodes
-    generate.collect do |root_node|
-      raising_with_file root_node['file'] do
-        Dock::Node.new root_node
-      end
+    file_nodes.inject([]) do |flat_nodes, root_nodes|
+      flat_nodes.concat root_nodes
     end
   end
   
   # The Sprockets environment which is responsible for building the Dock JavaScript sources.
   def source_compiler
     @source_compiler ||= Sprockets::Environment.new.tap do |env|
-      env.append_path File.expand_path("lib/js")
+      env.append_path File.expand_path("./js", File.dirname(__FILE__))
     end
   end
   
@@ -69,11 +82,13 @@ class Dock
     @context ||= ExecJS.compile source
   end
   
-  # Builds the documentation for the project and returns it as an array of nodes
-  def generate
-    @generated ||= discovered_files.collect do |file|
+  # Builds the documentation for the project and returns it as an array of
+  # arrays of nodes. Each top-level array represents a single parsed file, and
+  # each second-level array represents the nodes parsed from that file.
+  def file_nodes
+    @nodes ||= discovered_files.collect do |file|
       raising_with_file file[0] do
-        context.call 'Dock.generate', language, *file
+        context.call('Dock.generate', language, *file).collect { |node| Dock::Node.new(node) }
       end
     end
   end
@@ -92,9 +107,9 @@ class Dock
     end
     
     if @scan_files
-      scan_path = File.expand_path(File.join(path, pattern))
-      files += Dir[scan_path].select { |f| File.file?(f) }.collect do |absolute_path|
-        relative_path = absolute_path.sub(/^#{Regexp::escape path}\/?/, '')
+      scan_path = File.expand_path project_path
+      files += Dir[File.join(scan_path, pattern)].select { |f| File.file?(f) }.collect do |absolute_path|
+        relative_path = absolute_path.sub(/^#{Regexp::escape scan_path}[\/\\]?/, '')
         contents = File.read absolute_path
         [relative_path, contents]
       end

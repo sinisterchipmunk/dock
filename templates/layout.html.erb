@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %> - <%= yield :subtitle %></title>
+    <%= yield :head %>
+  </head>
+  
+  <body>
+    <h1><%= title %></h1>
+    <h2><%= yield :subtitle %></h2>
+    
+    <%= yield %>
+  </body>
+</html>

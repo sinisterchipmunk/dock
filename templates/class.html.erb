@@ -1,0 +1,21 @@
+<% content_for :subtitle do %>
+  <span class="class">
+    <%= node.name %>
+  </span>
+  
+  <span class="file">
+    (in <%= node.file %>)
+  </span>
+<% end %>
+
+<% node.class.public_instance_methods.each do |method| %>
+  <div class="public instance method">
+    <p class="name">
+      <%= method %>
+    </p>
+    
+    <ul class="arguments">
+      <li></li>
+    </div>
+  </div>
+<% end %>
