@@ -1,11 +1,16 @@
-{Class, Module, Method, Constant, Variable} = require 'dock/nodes'
+{Node, Class, Module, Method, Constant, Variable} = require 'dock/nodes'
 
 class exports.Base
   constructor: (@filename, @contents) ->
-
+    
   class:    (args...) -> new Class    args...
   module:   (args...) -> new Module   args...
   method:   (args...) -> new Method   args...
   constant: (args...) -> new Constant args...
   variable: (args...) -> new Variable args...
   
+  document: ->
+    unless @root
+      @root = new Node 'Root'
+      @generate()
+    @root

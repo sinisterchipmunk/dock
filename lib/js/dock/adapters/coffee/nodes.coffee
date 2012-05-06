@@ -4,6 +4,9 @@ exports.extend = extend  # for parser
 class Node
   constructor: (@nodes...) ->
     @type = @__proto__.constructor.name
+  build: ->
+    for child in @children
+      if @[child] and @[child].build then @[child].build()
   
 class exports.Literal extends Node
   constructor: (@value) -> super()
@@ -11,6 +14,7 @@ class exports.Literal extends Node
     
 class exports.Value extends Node
   constructor: (@base, @properties = [], @tag) -> super()
+  children: -> ['base', 'properties', 'tag']
   add: (props) ->
     @properties = @properties.concat props
     this
@@ -18,24 +22,39 @@ class exports.Value extends Node
 
 class exports.Class extends Node
   constructor: (@name, @extends, @block) -> super()
+  children: -> ['name', 'extends', 'block']
     
 class exports.Code extends Node
   constructor: (@params, @body, @tag) -> super()
+  children: -> ['params', 'body', 'tag']
     
 class exports.Assign extends Node
   constructor: (@variable, @value, @context, @options) -> super()
+  children: -> ['variable', 'value', 'context', 'options']
   
 class exports.Obj extends Node
   constructor: (@props, @generated = false) -> super()
+  children: -> ['props', 'generated']
   
 class exports.Call extends Node
   constructor: (@variable, @args = [], @soak) -> super()
+  children: -> ['variable', 'args', 'soak']
 
 class exports.Block extends Node
   constructor: (@lines = []) -> super()
+  children: -> ['lines']
   push: (node) ->
     @lines.push node
     this
+  build: ->
+    doc = ""
+    for line in @lines
+      if line instanceof exports.Comment
+        doc += line.comment
+      else
+        line.documentation = doc
+        doc = ""
+    super()
     
   @wrap = (ary) ->
     klass = exports.Block
@@ -43,64 +62,83 @@ class exports.Block extends Node
 
 class exports.Return extends Node
   constructor: (@expr) -> super()
+  children: -> ['expr']
 
 class exports.Comment extends Node
   constructor: (@comment) -> super()
+  children: -> ['comment']
 
 class exports.Param extends Node
   constructor: (@name, @value, @splat) -> super()
+  children: -> ['name', 'value', 'splat']
         
 class exports.Splat extends Node
   constructor: (@name) -> super()
+  children: -> ['name']
 
 class exports.Access extends Node
   constructor: (@name, @tag) -> super()
+  children: -> ['name', 'tag']
 
 class exports.Index extends Node
   constructor: (@index) -> super()
+  children: -> ['index']
 
 class exports.Slice extends Node
   constructor: (@range) -> super()
+  children: -> ['range']
   
 class exports.Arr extends Node
   constructor: (@objs) -> super()
+  children: -> ['objs']
 
 class exports.Range extends Node
   constructor: (@from, @to, @tag) -> super()
+  children: -> ['from', 'to', 'tag']
 
 class exports.Try extends Node
   constructor: (@attempt, @error, @recovery, @ensure) -> super()
+  children: -> ['attempt', 'error', 'recovery', 'ensure']
 
 class exports.Throw extends Node
   constructor: (@expression) -> super()
+  children: -> ['expression']
   
 class exports.Parens extends Node
   constructor: (@body) -> super()
+  children: -> ['body']
 
 class exports.While extends Node
   constructor: (@condition, @options) -> super()
   addBody: (@body) -> @
+  children: -> ['condition', 'options', 'body']
 
 class exports.For extends Node
   constructor: (@body, @source) -> super()
+  children: -> ['body', 'source']
 
 class exports.Switch extends Node
   constructor: (@subject, @cases, @otherwise) -> super()
+  children: -> ['subject', 'cases', 'otherwise']
 
 class exports.If extends Node
   constructor: (@condition, @body, @options = {}) -> super()
   addElse: (@else) -> @
+  children: -> ['condition', 'body', 'options', 'else']
 
 class exports.Op extends Node
   constructor: (@op, @first, @second, @flip) ->
     super()
     @inverted = false
+  children: -> ['op', 'first', 'second', 'flip', 'inverted']
   invert: ->
     @inverted = true
     this
 
 class exports.Extends extends Node
   constructor: (@child, @parent) -> super()
+  children: -> ['child', 'parent']
 
 class exports.Existence extends Node
   constructor: (@expression) -> super()
+  children: -> ['expression']

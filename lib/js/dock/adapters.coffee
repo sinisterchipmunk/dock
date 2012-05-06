@@ -7,7 +7,7 @@ exports.Adapters = class Adapters
     language or= filename.substring filename.lastIndexOf('.') + 1, filename.length
     
     if klass = this[language]
-      root_node = new klass(filename, contents).generate()
+      root_node = new klass(filename, contents).document()
       root_node.file = filename
       root_node.language = language
       root_node

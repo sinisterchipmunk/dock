@@ -47,14 +47,9 @@ class Dock
   end
   
   def classes
-    root_nodes.select do |node|
-      node.type == 'Class'
-    end
-  end
-  
-  def root_nodes
-    file_nodes.inject([]) do |flat_nodes, root_nodes|
-      flat_nodes.concat root_nodes
+    root_nodes.inject([]) do |classes, node|
+      classes.concat node.classes
+      classes
     end
   end
   
@@ -83,12 +78,12 @@ class Dock
   end
   
   # Builds the documentation for the project and returns it as an array of
-  # arrays of nodes. Each top-level array represents a single parsed file, and
-  # each second-level array represents the nodes parsed from that file.
-  def file_nodes
+  # nodes. Each node represents the documented file and contains information
+  # about the objects contained in it.
+  def root_nodes
     @nodes ||= discovered_files.collect do |file|
       raising_with_file file[0] do
-        context.call('Dock.generate', language, *file).collect { |node| Dock::Node.new(node) }
+        Dock::Node.new context.call('Dock.generate', language, *file)
       end
     end
   end
