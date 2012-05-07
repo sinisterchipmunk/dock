@@ -1,55 +1,35 @@
-<% content_for :subtitle do %>
-  <span class="class">
-    <%= node.name %>
-  </span>
-  
-  <span class="file">
-    (in <%= node.file %>)
-  </span>
-<% end %>
+<%= render :partial => 'index' %>
 
-<div class="documentation">
-  <%= node.documentation %>
-</div>
+<div id="content">
+  <h1>
+    <span class="class">
+      <%= node.name %>
+      <span class="file">
+        (<img src='<%= path_to "images/class.png" %>' alt="class" title="class"> in <%= node.file %>)
+      </span>              
+    </span>
+  </h1>
+
+  <div class="documentation">
+    <%= node.documentation %>
+  </div>
                      
-<div id="class_methods">
-  <h2>Class Methods</h2>
-  <% node.class_methods.each do |method| %>
-    <div class="class-method">
-      <h3 class="name">
-        <%= method.name %>
-      </h3>
-    
-      <div class="documentation">
-        <%= method.documentation %>
+  <div class="methods">
+    <% methods.each do |method| %>
+      <div class="method">
+        <h3 class="signature">
+          <%= image_link_to_method method %>
+          <a name='<%= method_anchor method %>'>
+            <%= method_signature method %>
+          </a>
+        </h3>  
+        
+        <div class="content">
+          <div class="documentation">
+            <%= method.documentation %>
+          </div>
+        </div>
       </div>
-    
-      <ul class="arguments">
-        <% method.params.each do |param| %>
-          <li><%= param.name %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-</div>
-          
-<div class="instance_methods">
-  <h2>Instance Methods</h2>
-  <% node.instance_methods.each do |method| %>
-    <div class="instance-method">
-      <h3 class="name">
-        <%= method.name %>
-      </h3>
-    
-      <div class="documentation">
-        <%= method.documentation %>
-      </div>
-    
-      <ul class="arguments">
-        <% method.params.each do |param| %>
-          <li><%= param.name %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

@@ -30,10 +30,14 @@ exports.Node = class Node
     @classes.push klass = new Class name, options
     klass
     
-  method: (name, options = {}) ->
-    @methods.push method = new Method name, options
+  instance_method: (name, options = {}) ->
+    @methods.push method = new InstanceMethod name, options
     method
   
+  class_method: (name, options = {}) ->
+    @methods.push method = new ClassMethod name, options
+    method
+
   constant: (name, options = {}) ->
     @constants.push constant = new Constant name, options
     constant
@@ -51,9 +55,13 @@ exports.Class = class Class extends Node
     super 'Class', name, options
     @superclass or= null
 
-exports.Method = class Method extends Node
+exports.ClassMethod = class Method extends Node
   constructor: (name, options = {}) ->
-    super 'Method', name, options
+    super 'ClassMethod', name, options
+
+exports.InstanceMethod = class Method extends Node
+  constructor: (name, options = {}) ->
+    super 'InstanceMethod', name, options
 
 exports.Constant = class Constant extends Node
   constructor: (name, options = {}) ->

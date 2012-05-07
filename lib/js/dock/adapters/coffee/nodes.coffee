@@ -43,7 +43,6 @@ class exports.Class extends Node
         switch prop.type
           when 'Comment' then desc += prop.comment
           when 'Assign'                    
-            console.log require('util').inspect(prop, false, null) if prop.variable.toString() == 'this'
             name = prop.variable.toString()
             if prop.value instanceof exports.Code
               @methods.push name: name, documentation: desc, params: prop.value.params

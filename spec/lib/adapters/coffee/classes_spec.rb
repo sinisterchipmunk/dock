@@ -20,7 +20,15 @@ describe "Coffee adapter" do
     subject.classes[0].class_methods[0].name.should == "getSpecies"
   end
   
-  it "should create params arrays for class methods" do
-    subject.classes[0].class_methods[0].params.should be_kind_of(Array)
+  it "should create class level documentation" do
+    subject.classes[0].documentation.length.should_not == 0
   end
+
+	it "should discover params for methods that have them" do
+		subject.classes[0].instance_methods[0].params.should_not be_empty
+	end
+	
+	it "should populate each class with its language" do
+		subject.classes.each { |k| k.language.should == 'coffee' }
+	end
 end

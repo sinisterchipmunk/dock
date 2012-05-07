@@ -10,7 +10,7 @@ class Dock
   autoload :Nodes,   "dock/nodes"
   autoload :Template,"dock/template"
   
-  attr_accessor :project_path, :pattern, :code, :language, :template_path, :title
+  attr_accessor :project_path, :pattern, :code, :language, :template_path, :title, :extra_files
   
   class << self
     attr_writer :markup
@@ -48,20 +48,29 @@ class Dock
     @project_path = "./lib"
     @pattern = "/**/*.{coffee,js,rb}"
     @template_path = File.expand_path("../templates", File.dirname(__FILE__))
+		@extra_files = Rake::FileList.new('*.css', '**/*.png')
   end
   
   def build_to(path)
-    template = Dock::Template.new :title => title
+    template = Dock::Template.new :title => title, :dock => self, :destination_root => path
     template.view_paths << template_path
     
-    FileUtils.mkdir_p path
     classes.each do |node|
       template.node = node
       result = template.render :template => node.type.underscore, :layout => 'layout'
-      File.open(File.join(path, "#{node.name.to_s.underscore}.html"), "w") do |f|
+	    FileUtils.mkdir_p File.dirname(template.full_path)
+      File.open(template.full_path, "w") do |f|
         f.puts result
       end
     end
+      
+		pwd = FileUtils.pwd
+		FileUtils.chdir File.expand_path(template_path) do
+			extra_files.resolve.each do |file|
+				FileUtils.mkdir_p File.expand_path(File.join(path, File.dirname(file)), pwd)
+				FileUtils.cp file, File.expand_path(File.join(path, file), pwd)
+			end
+		end
   end
   
   def classes

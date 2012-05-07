@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %> - <%= yield :subtitle %></title>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="<%= path_to 'stylesheet.css' %>" />
     <%= yield :head %>
   </head>
   
   <body>
-    <h1><%= title %></h1>
-    <h2><%= yield :subtitle %></h2>
-    
     <%= yield %>
   </body>
 </html>

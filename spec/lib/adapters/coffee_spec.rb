@@ -24,6 +24,11 @@ describe "Coffee adapter" do
   it "should discover exported classes" do
     d = Dock.new :code => "exports.Code = class Code\n  constructor: ->", :language => 'coffee'
     d.classes.first.name.should == 'Code'
+  end                                    
+  
+  it "should document exported classes" do
+    d = Dock.new :code => "###\nCODE!\n###\nexports.Code = class Code\n  constructor: ->", :language => 'coffee'
+    d.classes.first.documentation.should include('CODE!')
   end
   
   it "should not croak on assigns to non-classes" do

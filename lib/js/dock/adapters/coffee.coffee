@@ -11,8 +11,9 @@ class module.exports extends Adapter
         when 'Assign'
           if line.value.type == 'Class'
             # TODO process the left side of assign, since that's effectively
-            # the class name now
+            # the class name, or at least an alias
             klass_node = @process_class_tree block, node, line.value
+            klass_node.documentation = line.documentation
         when 'Class'
           @process_class_tree block, node, line
     node
@@ -20,17 +21,26 @@ class module.exports extends Adapter
   process_class_tree: (block, node, klass) ->
     [instance_methods, class_methods] = [[], []]
     for method in klass.methods
+      method_params = []
+      for param in method.params
+        method_params.push
+          type: 'Param'
+          name: param.name.toString()
+          default: param.value && param.value.toString()
+          documentation: param.documentation || ""
+      
       if method.name.indexOf("this.") == 0
-        class_methods.push @method method.name.substring(5, method.name.length),
+        class_methods.push @class_method method.name.substring(5, method.name.length),
           documentation: method.documentation
-          params: []
+          params: method_params
       else
-        instance_methods.push @method method.name,
+        instance_methods.push @instance_method method.name,
           documentation: method.documentation
-          params: [] #method_params
+          params: method_params
 
     node.classes.push klass_node = @process_tree klass.block, @class klass.name.toString(),
-      file: @filename
+      file: @filename   
+      language: 'coffee'
       documentation: klass.documentation
       instance_methods: instance_methods
       class_methods: class_methods

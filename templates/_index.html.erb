@@ -1,0 +1,30 @@
+<div id="index">
+  <ul id="class-index">
+    <% dock.classes.each do |klass| %>
+      <li class="class">
+        <a href="<%= path_to klass.file %>"><%= klass.name %>.<%= node.language %></a>
+        <ul>
+          <% klass.class_methods.each do |method| %>
+            <li class="class-method">           
+              <a href="#<%= method_anchor method %>">
+                <%= method.name %>
+              </a>
+            </li>
+          <% end %>
+          
+          <% unless klass.instance_methods.empty? or klass.class_methods.empty? %>
+            <div class="hr"></div>
+          <% end %>
+          
+          <% klass.instance_methods.each do |method| %>
+            <li class="instance-method">
+              <a href="#<%= method_anchor method %>">
+                <%= method.name %>
+              </a>
+            </li>
+          <% end %>                                                               
+        </ul>
+      </li>
+    <% end %>
+  </ul>
+</div>

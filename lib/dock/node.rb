@@ -36,14 +36,19 @@ class Dock::Node
   def documentation                                                      
     @documentation ||= begin
       doc = @node['documentation']
-      # doc may contain indentations left over from coffeescript parsing, so remove them
+      # doc may contain indentations left over from parsing, so remove them
       white = nil
       doc.gsub(/\n[\s\t]+/) do |match|
         w = match.gsub(/\t/, '    ').length - 1
         white = w if white.nil? or w < white
       end
       doc.gsub!(/\n\s{#{white}}/, "\n")                 
-      GitHub::Markup.render("file.#{Dock.markup}", doc).html_safe
+      string = GitHub::Markup.render("file.#{Dock.markup}", doc)
+      if string.respond_to?(:html_safe)
+        string.html_safe
+      else
+        string
+      end
     end
   end
   
