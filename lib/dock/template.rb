@@ -8,10 +8,14 @@ class Dock::Template < ActionView::Base
     options.each do |key, value|
       self.send :"#{key}=", value
     end
-  end             
+  end        
+
+  def node_file(klass)
+    File.join(File.dirname(klass.file), "#{klass.name}.html")
+  end
 
 	def full_path
-		File.expand_path node.file, destination_root
+		File.expand_path node_file(node), destination_root
 	end
 
 	def path_to(file)
@@ -20,7 +24,11 @@ class Dock::Template < ActionView::Base
 	end                             
 	
 	def method_signature(method)
-		"#{method.name}(#{method_params method})" 
+		if method.name == 'constructor' and method.type == 'InstanceMethod'
+			"new #{node.name}(#{method_params method})"
+		else
+			"#{method.name}(#{method_params method})" 
+		end
 	end   
 	
 	def methods
@@ -28,16 +36,7 @@ class Dock::Template < ActionView::Base
 	end        
 	
 	def image_link_to_method(method)
-		if method.type == 'ClassMethod'
-			type = "class_method"
-		else
-			if method.name == 'constructor'
-				type = "constructor"
-			else
-				type = "instance_method"
-			end
-		end
-		
+		type = method.name == 'constructor' ? 'constructor' : method.type.underscore
 		link_to image_tag(path_to("images/#{type}.png"), type.humanize), "#" + method_anchor(method)
 	end
 	

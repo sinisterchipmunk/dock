@@ -11,7 +11,7 @@ COFFEE_GRAMMAR= File.expand_path("lib/js/dock/adapters/coffee/grammar.coffee", F
 desc "build documentation by running Dock against itself"
 task :doc do
   dock = Dock.new :project_path => File.expand_path('.', File.dirname(__FILE__)),
-                  :pattern => 'lib/js/*.{coffee}',
+                  :pattern => 'lib/js/**/*.{coffee}',
                   :title => "Dock"
   dock.build_to './doc'
 end

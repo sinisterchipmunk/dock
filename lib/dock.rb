@@ -2,6 +2,7 @@ require 'execjs'
 require 'json'
 require 'sprockets'
 require 'github/markup'
+require 'rake'
 
 class Dock
   autoload :Version, "dock/version"
