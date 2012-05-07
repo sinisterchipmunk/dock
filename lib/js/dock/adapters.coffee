@@ -3,7 +3,7 @@ exports.Adapters = class Adapters
   @coffee: require 'dock/adapters/coffee'
   @js:     require 'dock/adapters/javascript'
 
-  @process: (language, filename, contents) ->
+  @process: (filename, contents, language = null) ->
     language or= filename.substring filename.lastIndexOf('.') + 1, filename.length
     
     if klass = this[language]

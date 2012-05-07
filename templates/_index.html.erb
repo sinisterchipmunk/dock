@@ -1,8 +1,10 @@
 <div id="index">
   <ul id="class-index">
+    <p><%= node.language %></p>
+    
     <% dock.classes.sort { |a, b| a.name <=> b.name }.each do |klass| %>
       <li class="class">
-        <a href="<%= path_to node_file(klass) %>"><%= klass.name %>.<%= node.language %></a>
+        <a href="<%= path_to node_file(klass) %>"><%= klass.name %></a>
         <% if klass == node %>
           <ul>
             <% klass.class_methods.each do |method| %>

@@ -111,7 +111,7 @@ class Dock
   def root_nodes
     @nodes ||= discovered_files.collect do |file|
       raising_with_file file[0] do
-        Dock::Node.new context.call('Dock.generate', language, *file)
+        Dock::Node.new context.call('Dock.generate', *file, language)
       end
     end
   end

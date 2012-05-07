@@ -10,20 +10,20 @@ exports.Dock = class Dock
   ###
   Generates the documentation and returns it as a JSON object
   
-    * `language` is 'coffee', 'js' or 'rb', or null to autodetect the
-      language from the file extension.
     * `filename` is the relative file name, including extension, and
       will be attached to each node for reference and used to detect
       language if language is null.
     * `content` is the file content itself. `Dock` does not read from
       the file system.
+    * `language` is 'coffee', 'js' or 'rb', or null to autodetect the
+      language from the file extension.
   
   Example:
   
       new Dock().generate 'coffee', "file1", "file-content1"
   ###
-  generate: (language = null, filename, content) ->
-    Adapters.process language, filename, content
+  generate: (filename, content, language = null) ->
+    Adapters.process filename, content, language
   
   ###
   Equivalent to instantiating `Dock` and then calling the instance
@@ -34,5 +34,5 @@ exports.Dock = class Dock
   
       Dock.generate 'coffee', 'file1', 'file-content1'
   ###  
-  @generate: (language = null, filename, content) ->
-    new Dock().generate language, filename, content
+  @generate: (filename, content, language = null) ->
+    new Dock().generate filename, content, language
