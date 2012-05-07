@@ -36,10 +36,26 @@ namespace :coffee do
   end
 end
 
+namespace :spec do
+  desc "Run javascript tests"
+  task :js do
+    NODE_PATHS = [
+      ENV['NODE_PATH'],
+      File.expand_path("lib/js", File.dirname(__FILE__)),
+      File.expand_path("spec", File.dirname(__FILE__))
+    ]
+    
+    ENV['NODE_PATH'] = NODE_PATHS.join(':')
+    result = system "jasmine-node", "--coffee", "spec"
+    raise "JS specs failed" unless result
+  end
+end
+
 task :default do
   if File.stat(COFFEE_PARSER).mtime < File.stat(COFFEE_GRAMMAR).mtime
     Rake::Task['coffee:parser'].invoke
     puts
   end
+  Rake::Task['spec:js'].invoke
   Rake::Task['spec'].invoke
 end

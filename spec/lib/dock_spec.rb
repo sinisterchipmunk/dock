@@ -11,12 +11,12 @@ describe Dock do
   
   describe "run against itself" do
     subject { Dock.new(
-      :pattern => '**/*.{coffee.rb}', # ignore js because it's huge and takes much time
-      :project_path => File.expand_path("lib", File.dirname(__FILE__)))
+      :pattern => 'dock.coffee', # ignore js because it's huge and takes much time
+      :project_path => File.expand_path("../../lib/js", File.dirname(__FILE__)))
     }
     
     it "should find the Dock class" do
-      subject.classes
+      subject.classes.collect { |c| c.name.to_str }.should include("Dock")
     end
   end
   
